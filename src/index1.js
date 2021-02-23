@@ -1,34 +1,26 @@
 // This was forked and migrated to jotai from https://codesandbox.io/s/valtio-tic-tac-forked-7bzu4?file=/src/index.js
-import React, { useDebugValue } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
 import "./styles.css";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import { atom, useAtom, Provider } from "jotai";
-// import { useAtomDevtools } from "jotai/devtools";
 
 const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]] // prettier-ignore
 
-// const { useAtomic, Atomic } = window._ATOMIC_DEVTOOLS_EXTENSION__;
+//atom5
+const squaresAtom = atom(Array(9).fill(null)); 
 
-const useDebugAtom = (atom, name) => {
-  atom.debugLabel = name;
-  // const dependents = "somehow";
-  useDebugValue(atom, () => name);
-  return useAtom(atom)
-};
-
-const squaresAtom = atom(Array(9).fill(null));
-squaresAtom.debugLabel = "squaresAtom"
-
+//atom2
 const nextValueAtom = atom((get) =>
   get(squaresAtom).filter((r) => r === "O").length ===
   get(squaresAtom).filter((r) => r === "X").length
     ? "X"
     : "O"
-);
-nextValueAtom.debugLabel = "nextValueAtom"
+);  
 
+
+//atom 3
 const winnerAtom = atom((get) => {
   for (let i = 0; i < lines.length; i++) {
     const [a, b, c] = lines[i];
@@ -40,12 +32,14 @@ const winnerAtom = atom((get) => {
       return get(squaresAtom)[a];
   }
   return null;
-});
+}); 
 
+//atom4
 const resetSquaresAtom = atom(null, (_get, set) =>
   set(squaresAtom, Array(9).fill(null))
 );
 
+//atom5
 const selectSquareAtom = atom(
   (get) => get(squaresAtom),
   (get, set, square) => {
@@ -59,42 +53,28 @@ const selectSquareAtom = atom(
   }
 );
 
+
+//atom6
 const statusAtom = atom((get) => {
-  return get(winnerAtom)
-    ? `Winner: ${get(winnerAtom)}`
-    : get(squaresAtom).every(Boolean)
-    ? `Scratch`
-    : `Next player: ${get(nextValueAtom)}`;
+  return get(winnerAtom) ? `Winner: ${get(winnerAtom)}` : get(squaresAtom).every(Boolean) ? `Scratch` : `Next player: ${get(nextValueAtom)}`;
 });
 
 
-function Squares({ i }) {
-  
-  // useAtomDevtools(selectSquareAtom, "selectSquareAtom");
-  // const [squares, selectSquare] = useAtom(selectSquareAtom);
 
-  const [, reset] = useDebugAtom(resetSquaresAtom, "resetSquaresAtom");
-  const [squares, selectSquare] = useDebugAtom(selectSquareAtom, "selectSquareAtom");
-  const [, setGameWinner] = useDebugAtom(winnerAtom, "winnerAtom");
+function Square({ i }) {
+  const [squares, selectSquare] = useAtom(selectSquareAtom);
 
 
   return (
-    <>
-      {squares.map((el, i) => (
-        <button key={i} className={`square ${el}`} onClick={() => selectSquare(i)}>
-          {el}
-        </button>
-      ))}
-    </>
+    <button className={`square ${squares[i]}`} onClick={() => selectSquare(i)}>
+      {squares[i]}
+    </button>
   );
 }
 
 function Status() {
-  // useAtomDevtools(statusAtom, "statusAtom");
-  // useAtomDevtools(resetSquaresAtom, "resetSquaresAtom");
-
-  const [gameStatus] = useDebugAtom(statusAtom, "statusAtom");
-  const [, reset] = useDebugAtom(resetSquaresAtom, "resetSquaresAtom");
+  const [gameStatus] = useAtom(statusAtom);
+  const [, reset] = useAtom(resetSquaresAtom);
 
   return (
     <div className="status">
@@ -105,10 +85,8 @@ function Status() {
 }
 
 function End() {
-  // useAtomDevtools(winnerAtom, "winnerAtom");
-
   const { width, height } = useWindowSize();
-  const [gameWinner] = useDebugAtom(winnerAtom, "winnerAtom");
+  const [gameWinner] = useAtom(winnerAtom);
   return (
     gameWinner && (
       <Confetti
@@ -128,7 +106,9 @@ ReactDOM.render(
       </h1>
       <Status />
       <div className="board">
-        <Squares />
+        {[0, 1, 2, 3, 4, 5, 6, 7, 8].map((field) => (
+          <Square key={field} i={field} />
+        ))}
       </div>
     </div>
     <End />
