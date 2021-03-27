@@ -5,18 +5,18 @@ import "./styles.css";
 import useWindowSize from "react-use/lib/useWindowSize";
 import Confetti from "react-confetti";
 import { atom, useAtom, Provider } from "jotai";
-// import { useAtomDevtools } from "jotai/devtools";
+import { useAtomicDevtool, AtomicDebugger } from "atomic-devtools";
 
 const lines = [[0, 1, 2], [3, 4, 5], [6, 7, 8], [0, 3, 6], [1, 4, 7], [2, 5, 8], [0, 4, 8], [2, 4, 6]] // prettier-ignore
 
 // const { useAtomic, Atomic } = window._ATOMIC_DEVTOOLS_EXTENSION__;
 
-const useDebugAtom = (atom, name) => {
-  atom.debugLabel = name;
-  // const dependents = "somehow";
-  useDebugValue(atom, () => name);
-  return useAtom(atom)
-};
+// const useDebugAtom = (atom, name) => {
+//   atom.debugLabel = name;
+//   // const dependents = "somehow";
+//   useDebugValue(atom, () => name);
+//   return useAtom(atom)
+// };
 
 const squaresAtom = atom(Array(9).fill(null));
 squaresAtom.debugLabel = "squaresAtom"
@@ -72,11 +72,11 @@ function Squares({ i }) {
   
   // useAtomDevtools(selectSquareAtom, "selectSquareAtom");
   // const [squares, selectSquare] = useAtom(selectSquareAtom);
+  // const [, setGameWinner] = useDebugAtom(winnerAtom, "winnerAtom");
+  // const [_, reset] = useDebugAtom(resetSquaresAtom, "resetSquaresAtom");
 
-  const [, reset] = useDebugAtom(resetSquaresAtom, "resetSquaresAtom");
-  const [squares, selectSquare] = useDebugAtom(selectSquareAtom, "selectSquareAtom");
-  const [, setGameWinner] = useDebugAtom(winnerAtom, "winnerAtom");
-
+  
+  const [squares, selectSquare] = useAtomicDevtool(selectSquareAtom, "selectSquareAtom");
 
   return (
     <>
@@ -93,8 +93,8 @@ function Status() {
   // useAtomDevtools(statusAtom, "statusAtom");
   // useAtomDevtools(resetSquaresAtom, "resetSquaresAtom");
 
-  const [gameStatus] = useDebugAtom(statusAtom, "statusAtom");
-  const [, reset] = useDebugAtom(resetSquaresAtom, "resetSquaresAtom");
+  const [gameStatus] = useAtomicDevtool(statusAtom, "statusAtom");
+  const [, reset] = useAtomicDevtool(resetSquaresAtom, "resetSquaresAtom");
 
   return (
     <div className="status">
@@ -108,23 +108,34 @@ function End() {
   // useAtomDevtools(winnerAtom, "winnerAtom");
 
   const { width, height } = useWindowSize();
-  const [gameWinner] = useDebugAtom(winnerAtom, "winnerAtom");
+  const [gameWinner] = useAtomicDevtool(winnerAtom, "winnerAtom");
+
   return (
     gameWinner && (
+      <>
       <Confetti
         width={width}
         height={height}
         colors={[gameWinner === "X" ? "#d76050" : "#509ed7", "white"]}
       />
+      </>
     )
   );
 }
 
-ReactDOM.render(
+function App() {
+  // useAtomDevtools(winnerAtom, "winnerAtom");
+
+
+  return (
   <Provider>
+    <AtomicDebugger>
     <div className="game">
       <h1>
-        x<span>o</span>x<span>o</span>
+        x
+        <span>o</span>
+        x
+        <span>o</span>
       </h1>
       <Status />
       <div className="board">
@@ -132,6 +143,10 @@ ReactDOM.render(
       </div>
     </div>
     <End />
-  </Provider>,
+    </AtomicDebugger>
+  </Provider>)
+}
+
+ReactDOM.render(<App/>,
   document.getElementById("root")
 );
