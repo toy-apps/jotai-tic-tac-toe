@@ -93,6 +93,10 @@ function Status() {
   // useAtomDevtools(statusAtom, "statusAtom");
   // useAtomDevtools(resetSquaresAtom, "resetSquaresAtom");
 
+  window.__TEST_HOOK__ = {test: 'test'};
+  
+
+
   const [gameStatus] = useAtomicDevtool(statusAtom, "statusAtom");
   const [, reset] = useAtomicDevtool(resetSquaresAtom, "resetSquaresAtom");
 
