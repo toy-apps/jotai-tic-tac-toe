@@ -113,7 +113,7 @@ function End() {
 
   const { width, height } = useWindowSize();
   const [gameWinner] = useAtomicDevtool(winnerAtom, "winnerAtom");
-
+  console.log('gameWinner ---> ', gameWinner)
   return (
     gameWinner && (
       <>
